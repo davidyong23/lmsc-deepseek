@@ -47,11 +47,11 @@ export default function FleetTable() {
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-border">
+            <tr className="border-b border-border/80">
               {['Vehicle', 'Zone', 'Battery', 'Status', 'Urgency', 'Recommendation'].map(h => (
                 <th
                   key={h}
-                  className="text-left text-[10px] font-medium text-slate-500 uppercase tracking-wider pb-2 pr-4 last:pr-0"
+                  className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-widest py-2.5 pr-4 last:pr-0"
                 >
                   {h}
                 </th>

@@ -45,7 +45,7 @@ export default function ChatMessage({ message }) {
       `}>
         {isUser
           ? <User size={13} className="text-accent" />
-          : <Bot size={13} className="text-slate-400" />
+          : <Bot size={13} className="text-accent/60" />
         }
       </div>
 

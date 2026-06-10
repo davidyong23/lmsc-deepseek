@@ -1,5 +1,5 @@
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine, CartesianGrid
 } from 'recharts'
 import { vehicles } from '../../data/mockData'
 import { BatteryMedium } from 'lucide-react'
@@ -90,7 +90,7 @@ export default function BatteryChart() {
       <ResponsiveContainer width="100%" height={200}>
         <BarChart
           data={chartData}
-          margin={{ top: 4, right: 16, bottom: 0, left: 0 }}
+          margin={{ top: 4, right: 32, bottom: 0, left: 0 }}
           barSize={28}
         >
           <XAxis
@@ -107,12 +107,13 @@ export default function BatteryChart() {
             tickFormatter={v => `${v}%`}
             width={36}
           />
+          <CartesianGrid vertical={false} stroke="#2a3044" strokeOpacity={0.6} />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59,130,246,0.05)' }} />
-          {/* Dispatch threshold lines */}
+          {/* Dispatch threshold lines — labels on left to avoid overlap with EV-08 bar */}
           <ReferenceLine y={35} stroke="#f59e0b" strokeDasharray="3 3" strokeOpacity={0.6}
-            label={{ value: 'Short-zone limit', position: 'insideTopRight', fill: '#f59e0b', fontSize: 9 }} />
+            label={{ value: 'Short-zone limit', position: 'insideTopLeft', fill: '#f59e0b', fontSize: 9 }} />
           <ReferenceLine y={20} stroke="#ef4444" strokeDasharray="3 3" strokeOpacity={0.6}
-            label={{ value: 'Critical threshold', position: 'insideTopRight', fill: '#ef4444', fontSize: 9 }} />
+            label={{ value: 'Critical threshold', position: 'insideTopLeft', fill: '#ef4444', fontSize: 9 }} />
           <Bar dataKey="battery" radius={[3, 3, 0, 0]}>
             {chartData.map((entry, i) => (
               <Cell key={i} fill={getBatteryColor(entry.battery)} fillOpacity={0.85} />

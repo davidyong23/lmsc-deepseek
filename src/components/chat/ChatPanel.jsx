@@ -9,7 +9,7 @@ function TypingIndicator() {
   return (
     <div className="flex gap-2.5">
       <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-surface border border-border flex items-center justify-center">
-        <Bot size={13} className="text-slate-400" />
+        <Bot size={13} className="text-accent/60" />
       </div>
       <div className="chat-bubble-agent flex items-center gap-1 py-3.5">
         <div className="dot-typing flex items-center">
@@ -35,7 +35,7 @@ export default function ChatPanel() {
   return (
     <div className="flex flex-col h-full card overflow-hidden">
       {/* Chat header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border flex-shrink-0">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-border flex-shrink-0 bg-surface/60">
         <div className="w-8 h-8 rounded-lg bg-surface border border-border flex items-center justify-center">
           <Bot size={16} className="text-accent" />
         </div>

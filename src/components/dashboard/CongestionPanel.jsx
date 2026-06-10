@@ -23,7 +23,7 @@ function ZoneCard({ zone, index, level, avoidRecommended }) {
       </div>
       <div className="mb-2">
         <div className="flex items-end gap-1">
-          <span className="text-xl font-bold font-mono" style={{ color: cfg.color }}>{index}</span>
+          <span className="text-xl font-bold font-mono" style={{ color: cfg.color, textShadow: `0 0 12px ${cfg.color}55` }}>{index}</span>
           <span className="text-xs text-slate-500 mb-0.5">/100</span>
         </div>
         <span className="text-[10px] font-medium" style={{ color: cfg.color }}>{cfg.label}</span>
