@@ -32,6 +32,25 @@ const chartData = vehicles.map(v => ({
   zone: v.zone,
 }))
 
+// Custom label rendered in the right margin — outside the bar area entirely.
+// Recharts clones this element and injects viewBox so we get the exact y-position
+// of the reference line in SVG coordinates.
+function RefLineLabel({ viewBox, value, fill }) {
+  if (!viewBox) return null
+  return (
+    <text
+      x={viewBox.x + viewBox.width + 6}
+      y={viewBox.y}
+      dy="0.35em"
+      fill={fill}
+      fontSize={9}
+      fontFamily="JetBrains Mono, monospace"
+    >
+      {value}
+    </text>
+  )
+}
+
 function CustomTooltip({ active, payload }) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
@@ -90,9 +109,10 @@ export default function BatteryChart() {
       <ResponsiveContainer width="100%" height={200}>
         <BarChart
           data={chartData}
-          margin={{ top: 4, right: 32, bottom: 0, left: 0 }}
+          margin={{ top: 4, right: 110, bottom: 0, left: 0 }}
           barSize={28}
         >
+          <CartesianGrid vertical={false} stroke="#2a3044" strokeOpacity={0.6} />
           <XAxis
             dataKey="id"
             tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'JetBrains Mono' }}
@@ -107,13 +127,12 @@ export default function BatteryChart() {
             tickFormatter={v => `${v}%`}
             width={36}
           />
-          <CartesianGrid vertical={false} stroke="#2a3044" strokeOpacity={0.6} />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59,130,246,0.05)' }} />
-          {/* Dispatch threshold lines — labels on left to avoid overlap with EV-08 bar */}
+          {/* Labels rendered in the 110 px right margin — clear of all bars */}
           <ReferenceLine y={35} stroke="#f59e0b" strokeDasharray="3 3" strokeOpacity={0.6}
-            label={{ value: 'Short-zone limit', position: 'insideTopLeft', fill: '#f59e0b', fontSize: 9 }} />
+            label={<RefLineLabel value="Short-zone limit" fill="#f59e0b" />} />
           <ReferenceLine y={20} stroke="#ef4444" strokeDasharray="3 3" strokeOpacity={0.6}
-            label={{ value: 'Critical threshold', position: 'insideTopLeft', fill: '#ef4444', fontSize: 9 }} />
+            label={<RefLineLabel value="Critical threshold" fill="#ef4444" />} />
           <Bar dataKey="battery" radius={[3, 3, 0, 0]}>
             {chartData.map((entry, i) => (
               <Cell key={i} fill={getBatteryColor(entry.battery)} fillOpacity={0.85} />
