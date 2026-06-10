@@ -35,7 +35,7 @@ export default function App() {
       </div>
 
       {/* Mobile: Chat panel below dashboard */}
-      <div className="lg:hidden border-t border-border" style={{ height: '50vh', minHeight: '320px' }}>
+      <div className="lg:hidden border-t border-border h-[50vh] min-h-[320px]">
         <div className="h-full p-3">
           <ChatPanel />
         </div>

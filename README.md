@@ -2,6 +2,8 @@
 
 AI-powered EV fleet operations dashboard for urban last-mile delivery optimisation.
 
+**Live demo:** https://lmsc-deepseek.vercel.app
+
 ## Quick Start
 
 ```bash
@@ -10,6 +12,13 @@ npm run dev
 ```
 
 App runs at http://localhost:3000
+
+## Production Build
+
+```bash
+npm run build       # compile to dist/
+npm run preview     # serve the built dist/ locally
+```
 
 ## API Key (Optional)
 
@@ -28,7 +37,12 @@ Without an API key, the app runs in **Demo Mode** with pre-written expert respon
 - AI chat agent (LMSC) powered by DeepSeek — answers routing, battery, and sustainability questions
 - Fleet status table with live battery indicators
 - Route energy consumption chart (Recharts)
-- Zone congestion panel with severity indicators
-- KPI cards: battery avg, CO₂ saved, on-time rate, renewable charge share
+- Fleet battery state chart with dispatch threshold reference lines
+- Zone congestion panel with severity indicators and AVOID alerts
+- KPI cards: avg fleet battery, CO₂ saved, on-time rate, renewable charge share
 - Fully responsive (desktop + mobile)
-- Fallback demo mode (no API key required)
+- Fallback demo mode — works with no API key
+
+## Tech Stack
+
+React 18 · Vite · Tailwind CSS · Recharts · Lucide React · DeepSeek API

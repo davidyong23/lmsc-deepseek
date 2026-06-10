@@ -51,7 +51,7 @@ export default function CongestionPanel() {
           <Gauge size={16} className="text-accent" />
           <span className="text-sm font-semibold text-white">Zone Congestion</span>
         </div>
-        {/* Congestion index is an overall network-weighted average */}
+        {/* Simple average of all zone congestion indices */}
         <div className="text-[10px] text-slate-400">
           Network index: <span className="text-white font-mono font-semibold">{networkCongestionIndex}/100</span>
           <span className="text-slate-600 ml-1">(avg)</span>

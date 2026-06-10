@@ -21,7 +21,7 @@ export default function ChatInput({ onSend, isLoading, showSuggestions }) {
 
   const handleSend = () => {
     if (!text.trim() || isLoading) return
-    onSend(text)
+    onSend(text.trim())
     setText('')
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
   }
