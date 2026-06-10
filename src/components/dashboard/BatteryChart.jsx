@@ -3,6 +3,7 @@ import {
 } from 'recharts'
 import { vehicles } from '../../data/mockData'
 import { BatteryMedium } from 'lucide-react'
+import { getBatteryColor } from '../../utils/batteryColor'
 
 const STATUS_COLOR = {
   en_route: '#3b82f6',
@@ -14,12 +15,6 @@ const STATUS_LABEL = {
   en_route: 'En Route',
   idle:     'Idle',
   charging: 'Charging',
-}
-
-function getBatteryColor(pct) {
-  if (pct >= 60) return '#22c55e'
-  if (pct >= 30) return '#f59e0b'
-  return '#ef4444'
 }
 
 const chartData = vehicles.map(v => ({

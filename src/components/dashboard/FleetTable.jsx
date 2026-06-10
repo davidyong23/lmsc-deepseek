@@ -1,5 +1,6 @@
 import { vehicles, getVehicleRecommendation } from '../../data/mockData'
 import { Truck } from 'lucide-react'
+import { getBatteryColor } from '../../utils/batteryColor'
 
 const STATUS_STYLES = {
   en_route: { label: 'En Route', class: 'bg-accent/20 text-accent border-accent/30' },
@@ -22,7 +23,7 @@ const RISK_STYLES = {
 }
 
 function BatteryBar({ pct }) {
-  const color = pct >= 60 ? '#22c55e' : pct >= 30 ? '#f59e0b' : '#ef4444'
+  const color = getBatteryColor(pct)
   return (
     <div className="flex items-center gap-2 min-w-[90px]">
       <div className="battery-bar flex-1">

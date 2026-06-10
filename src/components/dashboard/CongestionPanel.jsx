@@ -54,7 +54,7 @@ export default function CongestionPanel() {
         {/* Congestion index is an overall network-weighted average */}
         <div className="text-[10px] text-slate-400">
           Network index: <span className="text-white font-mono font-semibold">{networkCongestionIndex}/100</span>
-          <span className="text-slate-600 ml-1">(weighted avg)</span>
+          <span className="text-slate-600 ml-1">(avg)</span>
         </div>
       </div>
 
