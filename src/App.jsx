@@ -29,7 +29,7 @@ export default function App() {
         </div>
 
         {/* RIGHT — Chat panel (fixed width, full height) */}
-        <div className="w-full max-w-md flex-shrink-0 border-l border-border p-4 flex flex-col min-h-0 hidden lg:flex">
+        <div className="hidden lg:flex lg:flex-col w-full max-w-md flex-shrink-0 border-l border-border p-4 min-h-0">
           <ChatPanel />
         </div>
       </div>

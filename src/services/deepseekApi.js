@@ -67,7 +67,10 @@ export async function sendMessage(conversationHistory) {
     }
 
     const data = await response.json()
-    const text = data.choices?.[0]?.message?.content || ''
+    const text = data.choices?.[0]?.message?.content
+    // A 200 response with no message content is malformed — surface it as an
+    // error instead of rendering an empty chat bubble.
+    if (!text) throw new Error('Empty response from API')
     return { text, error: null }
   } catch (err) {
     return { text: null, error: err.message || 'Unknown error' }
