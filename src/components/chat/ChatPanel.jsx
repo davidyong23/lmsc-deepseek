@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react'
 import { Bot, WifiOff } from 'lucide-react'
-import { useChat } from '../../hooks/useChat'
 import { isApiAvailable } from '../../services/deepseekApi'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
@@ -20,8 +19,9 @@ function TypingIndicator() {
   )
 }
 
-export default function ChatPanel() {
-  const { messages, isLoading, sendUserMessage } = useChat()
+// Chat state lives in App (via useChat) and is passed in as props so the
+// desktop and mobile panels render the same conversation.
+export default function ChatPanel({ messages, isLoading, sendUserMessage }) {
   const bottomRef = useRef(null)
   const apiAvailable = isApiAvailable()
 

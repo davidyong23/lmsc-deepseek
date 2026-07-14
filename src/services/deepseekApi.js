@@ -20,9 +20,23 @@ const FALLBACK_RESPONSES = [
   `Current sustainability score: 83/100 — solid, but three actions would move the needle today:\n\n1. Reroute EV-03 and EV-07 off East Zone routes — saves ~6.4 kWh this shift, worth ~4.8 kg CO₂ avoided. Score delta: +3–4 points.\n2. Enforce charge discipline on EV-06 — it's at 7 cycles this week, above the 6-cycle degradation threshold. Schedule a full cycle (20%→80%) rather than a shallow top-up.\n3. Target off-peak charging for EV-04 and EV-08 tonight to push renewable share from 61% toward the 70% compliance target.\n\nCombined projected score: approximately 88–90/100 by end of shift.`,
 ]
 
+// Keyword → response-index map so demo answers stay coherent with the
+// question asked (each suggested prompt has a purpose-written response).
+// Order matters: first match wins. Unmatched questions cycle instead.
+const FALLBACK_MATCHERS = [
+  [/ev-?06|medical/i, 2],
+  [/what.?if|reroute|ev-?07/i, 4],
+  [/renewable|charge share/i, 3],
+  [/degradation|cycle/i, 5],
+  [/congestion|east/i, 1],
+]
+
 let fallbackIndex = 0
 
-function getFallbackResponse() {
+function getFallbackResponse(question = '') {
+  for (const [pattern, idx] of FALLBACK_MATCHERS) {
+    if (pattern.test(question)) return FALLBACK_RESPONSES[idx]
+  }
   const response = FALLBACK_RESPONSES[fallbackIndex % FALLBACK_RESPONSES.length]
   fallbackIndex++
   return response
@@ -30,8 +44,9 @@ function getFallbackResponse() {
 
 export async function sendMessage(conversationHistory) {
   if (!isApiAvailable()) {
+    const lastUserMessage = conversationHistory[conversationHistory.length - 1]?.content || ''
     await new Promise(r => setTimeout(r, 1200 + Math.random() * 800))
-    return { text: getFallbackResponse(), error: null }
+    return { text: getFallbackResponse(lastUserMessage), error: null }
   }
 
   const systemPrompt = buildSystemPrompt()

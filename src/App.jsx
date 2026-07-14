@@ -5,8 +5,14 @@ import BatteryChart from './components/dashboard/BatteryChart'
 import FleetTable from './components/dashboard/FleetTable'
 import CongestionPanel from './components/dashboard/CongestionPanel'
 import ChatPanel from './components/chat/ChatPanel'
+import { useChat } from './hooks/useChat'
 
 export default function App() {
+  // Single chat state shared by the desktop and mobile panels — both are
+  // always mounted (CSS toggles visibility), so the conversation must not
+  // reset when the viewport crosses the lg breakpoint.
+  const chat = useChat()
+
   return (
     <div className="flex flex-col h-screen bg-base overflow-hidden">
       <TopBar />
@@ -30,14 +36,14 @@ export default function App() {
 
         {/* RIGHT — Chat panel (fixed width, full height) */}
         <div className="hidden lg:flex lg:flex-col w-full max-w-md flex-shrink-0 border-l border-border p-4 min-h-0">
-          <ChatPanel />
+          <ChatPanel {...chat} />
         </div>
       </div>
 
       {/* Mobile: Chat panel below dashboard */}
       <div className="lg:hidden border-t border-border h-[50vh] min-h-[320px]">
         <div className="h-full p-3">
-          <ChatPanel />
+          <ChatPanel {...chat} />
         </div>
       </div>
     </div>
