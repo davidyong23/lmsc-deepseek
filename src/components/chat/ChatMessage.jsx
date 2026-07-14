@@ -6,6 +6,16 @@ function formatTime(date) {
     : ''
 }
 
+// Render **bold** spans inline — the live model emphasises with markdown
+// bold despite plain-text instructions, so parse it rather than show raw **.
+function renderInline(text) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+    i % 2 === 1
+      ? <strong key={i} className="font-semibold text-white">{part}</strong>
+      : part
+  )
+}
+
 // Convert plain text with line breaks / bullets into JSX
 function renderContent(text) {
   return text.split('\n').map((line, i) => {
@@ -15,7 +25,7 @@ function renderContent(text) {
       return (
         <div key={i} className="flex gap-2 my-0.5">
           <span className="text-slate-500 mt-0.5 flex-shrink-0">•</span>
-          <span>{line.replace(/^[•\-]\s*/, '')}</span>
+          <span>{renderInline(line.replace(/^[•\-]\s*/, ''))}</span>
         </div>
       )
     }
@@ -25,11 +35,11 @@ function renderContent(text) {
       return (
         <div key={i} className="my-1">
           <span className="text-accent font-semibold">{label}:</span>
-          <span>{rest.join(':')}</span>
+          <span>{renderInline(rest.join(':'))}</span>
         </div>
       )
     }
-    return <p key={i} className="my-0.5">{line}</p>
+    return <p key={i} className="my-0.5">{renderInline(line)}</p>
   })
 }
 
