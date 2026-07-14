@@ -22,6 +22,13 @@ const RISK_STYLES = {
   info:     'text-slate-400',
 }
 
+// Phrases the row as an operator would ask it, using only live vehicle data.
+function buildVehicleQuestion(v) {
+  const status = v.status.replace('_', ' ')
+  const urgency = v.urgency !== 'standard' ? `, ${v.urgency.toUpperCase()} urgency` : ''
+  return `${v.id} is at ${v.batteryPct}% in ${v.zone} zone (${status}${urgency}). What's your recommendation for this vehicle?`
+}
+
 function BatteryBar({ pct }) {
   const color = getBatteryColor(pct)
   return (
@@ -36,13 +43,14 @@ function BatteryBar({ pct }) {
   )
 }
 
-export default function FleetTable() {
+export default function FleetTable({ onAskAboutVehicle }) {
   return (
     <div className="card p-4">
       <div className="flex items-center gap-2 mb-4">
         <Truck size={16} className="text-accent" />
         <span className="text-sm font-semibold text-white">Fleet Status</span>
-        <span className="ml-auto text-[10px] text-slate-500 font-mono">{vehicles.length} vehicles</span>
+        <span className="ml-auto text-[10px] text-slate-500 hidden sm:inline">Click a vehicle to ask LMSC</span>
+        <span className="text-[10px] text-slate-500 font-mono sm:border-l sm:border-border sm:pl-2">{vehicles.length} vehicles</span>
       </div>
 
       <div className="overflow-x-auto">
@@ -66,10 +74,23 @@ export default function FleetTable() {
               const urgency = URGENCY_STYLES[v.urgency] || URGENCY_STYLES.standard
               const isHighRisk = rec.risk === 'critical'
 
+              const ask = () => onAskAboutVehicle(buildVehicleQuestion(v))
+
               return (
                 <tr
                   key={v.id}
-                  className={`hover:bg-white/[0.02] transition-colors ${isHighRisk ? 'bg-danger/5' : ''}`}
+                  onClick={ask}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      ask()
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Ask LMSC about ${v.id}`}
+                  title={`Ask LMSC about ${v.id}`}
+                  className={`cursor-pointer hover:bg-accent/[0.07] focus:outline-none focus:bg-accent/10 transition-colors ${isHighRisk ? 'bg-danger/5' : ''}`}
                 >
                   <td className="py-2.5 pr-4 font-mono font-medium text-white">{v.id}</td>
                   <td className="py-2.5 pr-4 text-slate-300">{v.zone}</td>

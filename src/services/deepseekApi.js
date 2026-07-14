@@ -1,4 +1,5 @@
 import { buildSystemPrompt } from '../config/systemPrompt'
+import { vehicles, congestionZones, getVehicleRecommendation } from '../data/mockData'
 
 const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY
 const DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions'
@@ -20,6 +21,37 @@ const FALLBACK_RESPONSES = [
   `Current sustainability score: 83/100 — solid, but three actions would move the needle today:\n\n1. Reroute EV-03 and EV-07 off East Zone routes — saves ~6.4 kWh this shift, worth ~4.8 kg CO₂ avoided. Score delta: +3–4 points.\n2. Enforce charge discipline on EV-06 — it's at 7 cycles this week, above the 6-cycle degradation threshold. Schedule a full cycle (20%→80%) rather than a shallow top-up.\n3. Target off-peak charging for EV-04 and EV-08 tonight to push renewable share from 61% toward the 70% compliance target.\n\nCombined projected score: approximately 88–90/100 by end of shift.`,
 ]
 
+// A click on a fleet row asks this exact question. Only 6 canned responses
+// exist and they don't cover all 8 vehicles, so demo mode answers these from
+// the live fleet data instead — otherwise a click on EV-05 would confidently
+// return advice about EV-04.
+const ROW_QUESTION_RE = /^(EV-\d+) is at .*recommendation for this vehicle/i
+
+function buildVehicleBriefing(vehicleId) {
+  const v = vehicles.find(x => x.id.toLowerCase() === vehicleId.toLowerCase())
+  if (!v) return null
+
+  const rec = getVehicleRecommendation(v)
+  const zone = congestionZones.find(z => z.zone === v.zone)
+  const atCycleLimit = v.cyclesThisWeek >= 6
+
+  const closing = {
+    info: `My recommendation: leave ${v.id} on charge and keep it out of the dispatch pool until it clears 40%.`,
+    critical: `My recommendation: ${rec.text}. Escalate to the operator before you commit this vehicle.`,
+    warning: `My recommendation: ${rec.text}. Confirm the route length before dispatch.`,
+    success: `My recommendation: ${v.id} is cleared for dispatch. ${rec.text}.`,
+  }[rec.risk]
+
+  return `${v.id} — ${v.batteryPct}% battery, ${v.rangeKm} km estimated range, ${v.zone} zone, currently ${v.status.replace('_', ' ')}.
+
+• Dispatch status: ${rec.text}
+• Zone congestion: ${zone.zone} at ${zone.index}/100 (${zone.level})${zone.avoidRecommended ? ' — flagged for avoidance, reroute where possible' : ''}
+• Charge cycles this week: ${v.cyclesThisWeek}${atCycleLimit ? ' — at or above the 6-cycle degradation threshold, flag for review' : ' — within limits'}
+• Delivery load: ${v.currentDeliveries > 0 ? `${v.currentDeliveries} pending` : 'none assigned'}, ${v.urgency} urgency
+
+${closing}`
+}
+
 // Keyword → response-index map so demo answers stay coherent with the
 // question asked (each suggested prompt has a purpose-written response).
 // Order matters: first match wins. Unmatched questions cycle instead.
@@ -34,6 +66,11 @@ const FALLBACK_MATCHERS = [
 let fallbackIndex = 0
 
 function getFallbackResponse(question = '') {
+  const rowMatch = question.match(ROW_QUESTION_RE)
+  if (rowMatch) {
+    const briefing = buildVehicleBriefing(rowMatch[1])
+    if (briefing) return briefing
+  }
   for (const [pattern, idx] of FALLBACK_MATCHERS) {
     if (pattern.test(question)) return FALLBACK_RESPONSES[idx]
   }

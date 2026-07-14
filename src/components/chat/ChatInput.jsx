@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { Send } from 'lucide-react'
 
 const SUGGESTED_PROMPTS = [
@@ -8,8 +8,8 @@ const SUGGESTED_PROMPTS = [
   'Which vehicles are at degradation risk this week?',
 ]
 
-export default function ChatInput({ onSend, isLoading, showSuggestions }) {
-  const [text, setText] = useState('')
+// The draft is controlled by App so the fleet table can write into it.
+export default function ChatInput({ onSend, isLoading, showSuggestions, draft, onDraftChange, focusSignal }) {
   const textareaRef = useRef(null)
 
   useEffect(() => {
@@ -17,12 +17,20 @@ export default function ChatInput({ onSend, isLoading, showSuggestions }) {
       textareaRef.current.style.height = 'auto'
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 96)}px`
     }
-  }, [text])
+  }, [draft])
+
+  // A fleet-row click bumps focusSignal. Both chat panels are mounted at all
+  // times, so only the one actually visible at this breakpoint takes focus.
+  useEffect(() => {
+    if (!focusSignal) return
+    const el = textareaRef.current
+    if (el && el.offsetParent !== null) el.focus()
+  }, [focusSignal])
 
   const handleSend = () => {
-    if (!text.trim() || isLoading) return
-    onSend(text.trim())
-    setText('')
+    if (!draft.trim() || isLoading) return
+    onSend(draft.trim())
+    onDraftChange('')
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
   }
 
@@ -60,8 +68,8 @@ export default function ChatInput({ onSend, isLoading, showSuggestions }) {
         <textarea
           ref={textareaRef}
           rows={1}
-          value={text}
-          onChange={e => setText(e.target.value)}
+          value={draft}
+          onChange={e => onDraftChange(e.target.value)}
           onKeyDown={handleKey}
           disabled={isLoading}
           placeholder="Ask about routing, battery health, dispatch decisions…"
@@ -75,7 +83,7 @@ export default function ChatInput({ onSend, isLoading, showSuggestions }) {
         />
         <button
           onClick={handleSend}
-          disabled={isLoading || !text.trim()}
+          disabled={isLoading || !draft.trim()}
           className="btn-primary flex-shrink-0 h-[42px] w-[42px] flex items-center justify-center rounded-lg"
           title="Send (Enter)"
         >

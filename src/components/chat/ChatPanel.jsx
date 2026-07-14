@@ -20,8 +20,8 @@ function TypingIndicator() {
 }
 
 // Chat state lives in App (via useChat) and is passed in as props so the
-// desktop and mobile panels render the same conversation.
-export default function ChatPanel({ messages, isLoading, sendUserMessage }) {
+// desktop and mobile panels render the same conversation and input draft.
+export default function ChatPanel({ messages, isLoading, sendUserMessage, draft, onDraftChange, focusSignal }) {
   const bottomRef = useRef(null)
   const apiAvailable = isApiAvailable()
 
@@ -78,6 +78,9 @@ export default function ChatPanel({ messages, isLoading, sendUserMessage }) {
         onSend={sendUserMessage}
         isLoading={isLoading}
         showSuggestions={showSuggestions}
+        draft={draft}
+        onDraftChange={onDraftChange}
+        focusSignal={focusSignal}
       />
     </div>
   )
