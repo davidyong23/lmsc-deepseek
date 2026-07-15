@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react'
 import { Zap, Activity } from 'lucide-react'
-import { isApiAvailable } from '../../services/deepseekApi'
+import { useApiStatus } from '../../hooks/useApiStatus'
 import { congestionZones } from '../../data/mockData'
+
+const MODE_STYLE = {
+  checking: { dot: 'bg-slate-500 animate-pulse', glow: '0 0 6px #64748b', label: 'Connecting…' },
+  live:     { dot: 'bg-success',                  glow: '0 0 6px #22c55e', label: 'Live Mode' },
+  demo:     { dot: 'bg-warning',                  glow: '0 0 6px #f59e0b', label: 'Demo Mode' },
+}
 
 export default function TopBar() {
   const [time, setTime] = useState(new Date())
-  const apiOk = isApiAvailable()
+  const status = useApiStatus()
+  const mode = MODE_STYLE[status]
 
   const peakActive = congestionZones.some(z => z.avoidRecommended)
   const avoidCount = congestionZones.filter(z => z.avoidRecommended).length
@@ -49,11 +56,11 @@ export default function TopBar() {
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <span
-            className={`w-2 h-2 rounded-full ${apiOk ? 'bg-success' : 'bg-warning'}`}
-            style={{ boxShadow: apiOk ? '0 0 6px #22c55e' : '0 0 6px #f59e0b' }}
+            className={`w-2 h-2 rounded-full ${mode.dot}`}
+            style={{ boxShadow: mode.glow }}
           />
           <span className="text-xs text-slate-400 hidden sm:inline">
-            {apiOk ? 'Live Mode' : 'Demo Mode'}
+            {mode.label}
           </span>
         </div>
 

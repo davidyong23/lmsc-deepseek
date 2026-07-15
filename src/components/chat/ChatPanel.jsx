@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Bot, WifiOff } from 'lucide-react'
-import { isApiAvailable } from '../../services/deepseekApi'
+import { useApiStatus } from '../../hooks/useApiStatus'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
 
@@ -23,7 +23,7 @@ function TypingIndicator() {
 // desktop and mobile panels render the same conversation and input draft.
 export default function ChatPanel({ messages, isLoading, sendUserMessage, draft, onDraftChange, focusSignal }) {
   const bottomRef = useRef(null)
-  const apiAvailable = isApiAvailable()
+  const status = useApiStatus()
 
   // Only show suggestions if only the welcome message is present
   const showSuggestions = messages.length === 1
@@ -54,12 +54,12 @@ export default function ChatPanel({ messages, isLoading, sendUserMessage, draft,
         </div>
       </div>
 
-      {/* Demo mode banner */}
-      {!apiAvailable && (
+      {/* Demo mode banner — only once we know the proxy has no key configured */}
+      {status === 'demo' && (
         <div className="flex items-center gap-2 px-4 py-2 bg-warning/10 border-b border-warning/20">
           <WifiOff size={12} className="text-warning flex-shrink-0" />
           <span className="text-[11px] text-warning">
-            Demo mode — add <span className="font-mono">VITE_DEEPSEEK_API_KEY</span> to <span className="font-mono">.env</span> for live AI responses
+            Demo mode — pre-written responses. Set <span className="font-mono">DEEPSEEK_API_KEY</span> on the server for live AI.
           </span>
         </div>
       )}

@@ -1,12 +1,28 @@
 import { buildSystemPrompt } from '../config/systemPrompt'
 import { vehicles, congestionZones, getVehicleRecommendation } from '../data/mockData'
 
-const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY
-const DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions'
+// The DeepSeek key lives on the server. The browser talks to our own
+// same-origin proxy at /api/chat, which attaches the key and forwards to
+// DeepSeek. Nothing secret is ever shipped to the client.
+const CHAT_ENDPOINT = '/api/chat'
 
-export const isApiAvailable = () => Boolean(API_KEY && API_KEY.length > 10)
+// Live vs demo is decided by asking the proxy whether a key is configured.
+// The result is cached so the check runs at most once per page load. Locally
+// (plain `vite dev`, no serverless function) the request never returns JSON,
+// so this resolves to false and the app runs in demo mode.
+let availabilityPromise = null
 
-// Fallback responses for demo mode (no API key present)
+export function checkApiAvailability() {
+  if (!availabilityPromise) {
+    availabilityPromise = fetch(CHAT_ENDPOINT, { method: 'GET' })
+      .then(res => (res.ok ? res.json() : { available: false }))
+      .then(data => Boolean(data && data.available))
+      .catch(() => false)
+  }
+  return availabilityPromise
+}
+
+// Pre-written responses for demo mode (no key configured)
 const FALLBACK_RESPONSES = [
   `Based on current fleet data, EV-04 at 31% is borderline for dispatch. At that level, I'd limit it to short-zone routes under 8 km — North Bypass at 8.6 km is marginal; North Loop A at 11.4 km is too long. My suggestion: hold EV-04 for the 3 pending deliveries only if they're all within 6 km of the depot. Otherwise, charge first — 20 minutes on fast charge should bring it to ~45%. Also note: EV-04 is at 4 cycles this week, which is within limits.`,
 
@@ -80,17 +96,17 @@ function getFallbackResponse(question = '') {
 }
 
 export async function sendMessage(conversationHistory) {
-  if (!isApiAvailable()) {
+  const available = await checkApiAvailability()
+
+  if (!available) {
     const lastUserMessage = conversationHistory[conversationHistory.length - 1]?.content || ''
     await new Promise(r => setTimeout(r, 1200 + Math.random() * 800))
     return { text: getFallbackResponse(lastUserMessage), error: null }
   }
 
+  // The system prompt is built client-side (it is not secret) and sent with the
+  // history. The proxy adds the key and forwards the whole thing to DeepSeek.
   const systemPrompt = buildSystemPrompt()
-
-  // DeepSeek uses OpenAI-compatible format:
-  // system prompt as first message with role "system",
-  // then the conversation history with roles "user" / "assistant"
   const messages = [
     { role: 'system', content: systemPrompt },
     ...conversationHistory.map(m => ({
@@ -100,28 +116,21 @@ export async function sendMessage(conversationHistory) {
   ]
 
   try {
-    const response = await fetch(DEEPSEEK_URL, {
+    const response = await fetch(CHAT_ENDPOINT, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        max_tokens: 1000,
-        messages,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages }),
     })
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}))
-      throw new Error(err?.error?.message || `API error ${response.status}`)
+      throw new Error(err?.error || `Request failed (${response.status})`)
     }
 
     const data = await response.json()
-    const text = data.choices?.[0]?.message?.content
-    // A 200 response with no message content is malformed — surface it as an
-    // error instead of rendering an empty chat bubble.
+    const text = data.text
+    // The proxy already guards against empty content, but check again in case
+    // something in between returns a malformed body.
     if (!text) throw new Error('Empty response from API')
     return { text, error: null }
   } catch (err) {
