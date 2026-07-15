@@ -6,14 +6,19 @@ function formatTime(date) {
     : ''
 }
 
-// Render **bold** spans inline — the live model emphasises with markdown
-// bold despite plain-text instructions, so parse it rather than show raw **.
+// Render **bold** and *italic* inline. The live model emphasises with markdown
+// despite plain-text instructions, so parse it rather than show raw asterisks.
+// Bold is matched before italic so a ** pair is never mistaken for two singles.
 function renderInline(text) {
-  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
-    i % 2 === 1
-      ? <strong key={i} className="font-semibold text-white">{part}</strong>
-      : part
-  )
+  return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).map((part, i) => {
+    if (/^\*\*[^*]+\*\*$/.test(part)) {
+      return <strong key={i} className="font-semibold text-white">{part.slice(2, -2)}</strong>
+    }
+    if (/^\*[^*]+\*$/.test(part)) {
+      return <em key={i} className="italic text-slate-300">{part.slice(1, -1)}</em>
+    }
+    return part
+  })
 }
 
 // Convert plain text with line breaks / bullets into JSX
