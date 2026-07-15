@@ -31,7 +31,7 @@ variables. The app auto-detects it and switches to **Live Mode**. Get a free
 key at https://platform.deepseek.com
 
 **Local:** plain `npm run dev` (Vite) does not run the serverless function, so
-the app stays in **Demo Mode** with pre-written responses — no key needed. To
+the app stays in **Demo Mode** with pre-written responses with no key needed. To
 run live mode locally, use the Vercel CLI, which serves the function too:
 
 ```bash
@@ -45,14 +45,14 @@ calls, and questions about a specific vehicle are answered from the fleet data.
 
 ## Features
 
-- AI chat agent (LMSC) powered by DeepSeek — answers routing, battery, and sustainability questions
+- AI chat agent (LMSC) powered by DeepSeek which answers routing, battery, and sustainability questions
 - Fleet status table with live battery indicators
 - Route energy consumption chart (Recharts)
 - Fleet battery state chart with dispatch threshold reference lines
 - Zone congestion panel with severity indicators and AVOID alerts
 - KPI cards: avg fleet battery, CO₂ saved, on-time rate, renewable charge share
 - Fully responsive (desktop + mobile)
-- Fallback demo mode — works with no API key
+- Fallback demo mode, works with no API key
 - Serverless proxy keeps the API key off the client
 
 ## Tech Stack
