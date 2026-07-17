@@ -88,7 +88,8 @@ export default function RouteChart() {
         <BarChart
           data={chartData}
           layout="vertical"
-          margin={{ top: 0, right: 48, bottom: 0, left: 4 }}
+          // bottom margin reserves room for the axis label; at 0 it clips
+          margin={{ top: 0, right: 48, bottom: 16, left: 4 }}
           barSize={14}
         >
           <XAxis
